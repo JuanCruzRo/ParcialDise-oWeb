@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Parcial Album</title>
+    <link rel='stylesheet' href='https://code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css'>
+    <script src='https://code.jquery.com/jquery-1.12.4.js'></script>
+    <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js'></script>
+    <script>
+        const url = 'https://jsonplaceholder.typicode.com/photos'
+
+        window.onload = function () {
+            getObjects()
+        }
+
+        //PROMESAS//
+
+        function loadObjects() {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('GET', url)
+                request.responseType = 'json'
+
+                request.onload = function () {
+                    console.log(request.status)// BORRAR
+
+                    if (request.status == 200) resolve(request.response)
+                    else reject(Error(request.statusText))
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send()
+            })
+        }
+
+        function addObject(object) {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('POST', url)
+                request.responseType = 'json'
+                request.setRequestHeader('Content-Type', 'application/json')
+
+                request.onload = function () {
+                    console.log(request.status)// BORRAR
+
+                    if (request.status == 201) resolve(request.response)
+                    else reject(Error(request.statusText))
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send(JSON.stringify(object))
+            })
+        }
+
+        function removeObject(id) {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('DELETE', `${url}/${id}`)
+                request.responseType = 'json'
+
+                request.onload = function () {
+                    console.log(request.status)// BORRAR
+
+                    if (request.status == 200) resolve(request.response)
+                    else reject(Error(request.statusText))
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send()
+            })
+        }
+
+        function modifyObject(updatedObject, id) {
+            return new Promise(function (resolve, reject) {
+                var request = new XMLHttpRequest()
+                request.open('PATCH', `${url}/${id}`)
+                request.responseType = 'json'
+                request.setRequestHeader('Content-Type', 'application/json')
+
+                request.onload = function () {
+                    console.log(request.status)// BORRAR
+
+                    if (request.status == 200) resolve(request.response)
+                    else reject(Error(request.statusText))
+                }
+                request.onerror = function () {
+                    reject(Error('Error: unexpected network error.'))
+                }
+                request.send(JSON.stringify(updatedObject))
+            })
+        }
+
+        //FUNCIONES QUE CONSUMEN LAS PROMESAS//
+
+        function getObjects() {
+            loadObjects().then(response => {
+                response.forEach((object) => {
+                    addRow(object)
+                })
+            }).catch(reason => {
+                alert("Ocurrio un error.")
+                console.error(reason)
+            })
+        }
+
+        function saveObject() {
+            const albumId = document.getElementById('albumId').value
+            const title = document.getElementById('albumId').value
+            const url = document.getElementById('albumId').value
+            const thumbnailUrl = document.getElementById('albumId').value
+
+            if (!albumId || !title || !url || !thumbnailUrl) {
+                alert("Celdas vacias")
+                return
+            }
+
+            const newObject = {
+                albumId: albumId,
+                title: title,
+                url: url,
+                thumbnailUrl: thumbnailUrl
+            }
+
+            addObject(newObject).then(response => {
+                addRow(response)
+                clearInputs()
+            }).catch(reason => {
+                alert("Ocurrio un error.")
+                console.error(reason)
+            })
+        }
+
+        function deleteObject(object) {
+            removeObject(object.id).then(response => {
+                alert("Album eliminado con exito!")
+            }).catch(reason => {
+                alert("Ocurrio un error.")
+                console.error(reason)
+            })
+        }
+
+        function updateObject(object, modifyBtn, tr) {
+            if (modifyBtn.textContent === "Modify") {
+                tr.cells[1].innerHTML = `<input value="${object.albumId}">`
+                tr.cells[2].innerHTML = `<input value="${object.title}">`
+                tr.cells[3].innerHTML = `<input value="${object.url}">`
+                tr.cells[4].innerHTML = `<input value="${object.thumbnailUrl}">`
+
+                modifyBtn.textContent = "Save"
+            } else {
+                const newAlbumId = tr.cells[1].querySelector('input').value.trim()
+                const newTitle = tr.cells[2].querySelector('input').value.trim()
+                const newUrl = tr.cells[3].querySelector('input').value.trim()
+                const newThumbnailUrl = tr.cells[4].querySelector('input').value.trim()
+
+                if (!newAlbumId || !newTitle || !newUrl || !newThumbnailUrl) {
+                    alert("Celdas vacias")
+                    return
+                }
+
+                const updatedObject = {
+                    id: object.id,
+                    albumId: newAlbumId,
+                    title: newTitle,
+                    url: newUrl,
+                    thumbnailUrl: newThumbnailUrl
+                }
+
+                modifyObject(updatedObject, object.id).then(response => {
+                    tr.cells[1].innerHTML = response.albumId
+                    tr.cells[2].innerHTML = response.title
+                    tr.cells[3].innerHTML = response.url
+                    tr.cells[4].innerHTML = response.thumbnailUrl
+
+                    object.albumId = response.albumId
+                    object.title = response.title
+                    object.url = response.url
+                    object.thumbnailUrl = response.thumbnailUrl
+
+                    modifyBtn.textContent = "Modify"
+                }).catch(reason => {
+                    alert("Ocurrio un error.")
+                    console.error(reason)
+                })
+            }
+        }
+
+
+        // MODULARIZACION
+
+        function addRow(object) {
+            const tbody = document.getElementsByTagName('tbody')[0]
+            const tr = tbody.insertRow()
+            tr.id = object.id
+
+            var cell = tr.insertCell()
+            cell.innerHTML = object.id
+
+            cell = tr.insertCell()
+            cell.innerHTML = object.albumId
+
+            cell = tr.insertCell()
+            cell.innerHTML = object.title
+
+            cell = tr.insertCell()
+            cell.innerHTML = object.url
+
+            cell = tr.insertCell()
+            cell.innerHTML = object.thumbnailUrl
+
+            cell = tr.insertCell()
+            var modifyBtn = document.createElement('Button')
+            modifyBtn.textContent = "Modify"
+            modifyBtn.onclick = () => updateObject(object, modifyBtn, tr)
+            cell.appendChild(modifyBtn)
+
+            cell = tr.insertCell()
+            var deleteBtn = document.createElement('Button')
+            deleteBtn.textContent = "Delete"
+            deleteBtn.onclick = () => deleteObject(object)
+            cell.appendChild(deleteBtn)
+        }
+
+        function clearInputs() {
+            document.getElementById('albumId').value = ""
+            document.getElementById('title').value = ""
+            document.getElementById('url').value = ""
+            document.getElementById('thumbnailUrl').value = ""
+        }
+    </script>
+</head>
+
+<body>
+    <table style='border: 1px solid'>
+
+    </table>
+
+    <div id='popUp' style="overflow-x: hidden">
+        <table border="3px">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Album ID</th>
+                    <th>Title</th>
+                    <th>URL</th>
+                    <th>ThumbnailUrl</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td><input id="albumId" placeholder="Album ID"></td>
+                    <td><input id="title" placeholder="Title"></td>
+                    <td><input id="url" placeholder="URL"></td>
+                    <td><input id="thumbnailUrl" placeholder="ThumbnailUrl"></td>
+                    <td><button onclick="saveObject()">ADD</button></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</body>
+
+</html>
