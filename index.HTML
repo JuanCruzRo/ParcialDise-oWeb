@@ -22,7 +22,7 @@
                 request.responseType = 'json'
 
                 request.onload = function () {
-                    console.log(request.status)// BORRAR
+                    console.log(request.status)
 
                     if (request.status == 200) resolve(request.response)
                     else reject(Error(request.statusText))
@@ -42,7 +42,7 @@
                 request.setRequestHeader('Content-Type', 'application/json')
 
                 request.onload = function () {
-                    console.log(request.status)// BORRAR
+                    console.log(request.status)
 
                     if (request.status == 201) resolve(request.response)
                     else reject(Error(request.statusText))
@@ -61,7 +61,7 @@
                 request.responseType = 'json'
 
                 request.onload = function () {
-                    console.log(request.status)// BORRAR
+                    console.log(request.status)
 
                     if (request.status == 200) resolve(request.response)
                     else reject(Error(request.statusText))
@@ -81,7 +81,7 @@
                 request.setRequestHeader('Content-Type', 'application/json')
 
                 request.onload = function () {
-                    console.log(request.status)// BORRAR
+                    console.log(request.status)
 
                     if (request.status == 200) resolve(request.response)
                     else reject(Error(request.statusText))
