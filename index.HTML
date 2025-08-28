@@ -7,7 +7,7 @@
     <script src='https://code.jquery.com/jquery-1.12.4.js'></script>
     <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.js'></script>
     <script>
-        const url = 'https://jsonplaceholder.typicode.com/photos'
+        const api = 'https://jsonplaceholder.typicode.com/photos'
 
         window.onload = function () {
             getObjects()
@@ -18,7 +18,7 @@
         function loadObjects() {
             return new Promise(function (resolve, reject) {
                 var request = new XMLHttpRequest()
-                request.open('GET', url)
+                request.open('GET', api)
                 request.responseType = 'json'
 
                 request.onload = function () {
@@ -35,7 +35,7 @@
         function addObject(object) {
             return new Promise(function (resolve, reject) {
                 var request = new XMLHttpRequest()
-                request.open('POST', url)
+                request.open('POST', api)
                 request.responseType = 'json'
                 request.setRequestHeader('Content-Type', 'application/json')
 
@@ -53,7 +53,7 @@
         function removeObject(id) {
             return new Promise(function (resolve, reject) {
                 var request = new XMLHttpRequest()
-                request.open('DELETE', `${url}/${id}`)
+                request.open('DELETE', `${api}/${id}`)
                 request.responseType = 'json'
 
                 request.onload = function () {
@@ -70,7 +70,7 @@
         function modifyObject(updatedObject, id) {
             return new Promise(function (resolve, reject) {
                 var request = new XMLHttpRequest()
-                request.open('PATCH', `${url}/${id}`)
+                request.open('PATCH', `${api}/${id}`)
                 request.responseType = 'json'
                 request.setRequestHeader('Content-Type', 'application/json')
 
